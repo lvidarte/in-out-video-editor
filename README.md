@@ -13,4 +13,8 @@ mkdir videos && wget -P videos http://mirror.bigbuckbunny.de/peach/bigbuckbunny_
 Show the video
 --------------
 
-<iframe width="853" height="480" src="//www.youtube.com/embed/sG5jFN8NJTs" frameborder="0" allowfullscreen></iframe>
+[http://www.youtube.com/watch?v=sG5jFN8NJTs](http://www.youtube.com/watch?v=sG5jFN8NJTs)
+
+
+
+
