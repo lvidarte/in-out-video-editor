@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>In-Out Video Editor</title>
+    <link rel="stylesheet" href="editor.css">
+    <script src="lib/jquery.min.js"></script>
+    <script src="lib/jquery-ui.js"></script>
+    <script src="InOutVideoEditor.js"></script>
+    <script>
+    $(document).ready(function() {
+
+        var video = "videos/big_buck_bunny_1080p_h264.mov";
+        var fps = 24;
+        var width = 960;
+        var height = 540;
+
+        window.editor = new InOutVideoEditor({ video: video, fps: fps });
+
+        editor.on('loaded', function() {
+            var video = this.getVideo();
+            $("#editor").append(video);
+            video.width = width;
+            video.height = height;
+            showInfo(this);
+            $("#seek-bar").attr({max: this.getTotalFrames()}).css({width: width});
+        });
+
+        var getInfo = function(editor) {
+            return {
+                "fps": editor.getFps(),
+                "width": editor.getVideoWidth(),
+                "height": editor.getVideoHeight(),
+                "duration": editor.getVideoDuration(),
+                "time": editor.getCurrentTime(),
+                "frames": editor.getTotalFrames(),
+                "frame": editor.getCurrentFrame(),
+                "begin": editor.getBeginAt(),
+                "end": editor.getEndAt(),
+            };
+        };
+
+        var showInfo = function(editor) {
+            var info = getInfo(editor);
+            var table = "";
+            for (k in info) {
+                table += "<tr><th>" + k + ":</th><td>" + info[k] + "</td></tr>";
+            }
+            $('#info').html("<table>" + table + "</table>");
+        };
+
+        editor.on('updated', function() {
+            $('#seek-bar').val(this.getCurrentFrame());
+            showInfo(this);
+        });
+
+        $('#seek-bar').change(function() {
+            editor.setCurrentFrame($(this).val());
+        });
+
+        $('#play').click(function() {
+            editor.getVideo().play();
+        });
+
+        $('#pause').click(function() {
+            editor.getVideo().pause();
+        });
+
+        $('#plus1').click(function() {
+            editor.moveFrames(1);
+        });
+
+        $('#minus1').click(function() {
+            editor.moveFrames(-1);
+        });
+
+        $('#plus10').click(function() {
+            editor.moveFrames(10);
+        });
+
+        $('#minus10').click(function() {
+            editor.moveFrames(-10);
+        });
+
+        $('#setBegin').click(function() {
+            editor.setBeginAt();
+            showInfo(editor);
+        });
+
+        $('#setEnd').click(function() {
+            editor.setEndAt();
+            showInfo(editor);
+        });
+
+        $('#goToBegin').click(function() {
+            editor.setCurrentFrame(editor.getBeginAt());
+        });
+
+        $('#goToEnd').click(function() {
+            editor.setCurrentFrame(editor.getEndAt());
+        });
+
+        editor.init();
+
+    });
+    </script>
+</head>
+<body>
+    <div id="editor"></div>
+    <div id="info"></div>
+    <div id="controls">
+        <input type="range" id="seek-bar" value="0">
+        <div style="margin-top:5px">
+            <button id="play">play</button>
+            <button id="pause">pause</button>
+            <button id="plus1">+1 frame</button>
+            <button id="minus1">-1 frame</button>
+            <button id="plus10">+10 frames</button>
+            <button id="minus10">-10 frames</button>
+            <button id="setBegin">set begin</button>
+            <button id="setEnd">set end</button>
+            <button id="goToBegin">begin</button>
+            <button id="goToEnd">end</button>
+        </div>
+    </div>
+</body>
+</html>
