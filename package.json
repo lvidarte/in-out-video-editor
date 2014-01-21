@@ -1,0 +1,31 @@
+{
+  "name": "in-out-video-editor",
+  "version": "0.0.1",
+  "description": "HTML5 In Out Video Editor",
+  "main": "InOutVideoEditor.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "~1.17.0",
+    "should": "~3.0.1"
+  },
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/lvidarte/in-out-video-editor"
+  },
+  "keywords": [
+    "html5",
+    "video",
+    "editor"
+  ],
+  "author": "Leonardo Vidarte",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/lvidarte/in-out-video-editor/issues"
+  }
+}

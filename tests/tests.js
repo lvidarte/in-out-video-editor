@@ -127,10 +127,10 @@ $(document).ready(function() {
         this.editor.init();
     });
 
-    asyncTest("Raise exception on move frames out of range (-" + moveFrames + ")", function() {
+    asyncTest("Raise exception on move to frame out of range (-" + moveFrames + ")", function() {
         var self = this;
         this.editor.on('loaded', function() {
-            description = "frames out of range";
+            description = "frame out of range";
             throws(function() {
                 self.moveFrames(-moveFrames);
             }, description, "raised error '" + description + "'");
@@ -154,7 +154,7 @@ $(document).ready(function() {
         this.editor.init();
     });
 
-    asyncTest("Raise exception on move time out of range (-" + moveSeconds + "s)", function() {
+    asyncTest("Raise exception on move to time out of range (-" + moveSeconds + "s)", function() {
         var self = this;
         this.editor.on('loaded', function() {
             description = "time out of range";

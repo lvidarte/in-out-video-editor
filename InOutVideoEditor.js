@@ -1,7 +1,11 @@
 var InOutVideoEditor = function(params) {
 
+    this.internal = {
+        video: null,
+        fps: 0,
+    };
+
     this.__construct = function() {
-        this.internal = {};
         if (params) {
             this.setVideo(params.video);
             this.setFps(params.fps);
@@ -37,13 +41,12 @@ var InOutVideoEditor = function(params) {
 
     this.getFps = function() {
         if (this.internal.fps == 0) {
-            throw 'fps not set';
+            throw new Error('fps not set');
         }
         return this.internal.fps;
     };
 
     this.setVideo = function(video) {
-        this.internal.video = null;
         if (typeof(video) == "string") {
             this.internal.video = $('<video src="' + video + '"/>').get(0);
         }
@@ -54,7 +57,7 @@ var InOutVideoEditor = function(params) {
 
     this.getVideo = function() {
         if (this.internal.video == null) {
-            throw 'video not set';
+            throw new Error('video not set');
         }
         return this.internal.video;
     };
@@ -69,7 +72,7 @@ var InOutVideoEditor = function(params) {
 
     this.setCurrentTime = function(time) {
         if (time < 0 || time > this.getVideoDuration()) {
-            throw "time out of range";
+            throw new Error('time out of range');
         }
         this.internal.currentTime = time;
         this.getVideo().currentTime = time;
@@ -81,7 +84,7 @@ var InOutVideoEditor = function(params) {
 
     this.setCurrentFrame = function(frame) {
         if (frame < 0 || frame > this.getTotalFrames()) {
-            throw "frame out of range";
+            throw new Error('frame out of range');
         }
         this.setCurrentTime(this.frameToTime(frame))
     };
