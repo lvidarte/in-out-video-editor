@@ -2,125 +2,144 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>In-Out Video Editor</title>
-    <link rel="stylesheet" href="editor.css">
-    <script src="lib/jquery.min.js"></script>
-    <script src="lib/jquery-ui.js"></script>
+    <title>Editor_v2</title>
+    <link rel="stylesheet" href="editor.css" type="text/css" media="screen" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="node_modules/underscore/underscore.js"></script>
+    <script src="node_modules/backbone/backbone.js"></script>
+    <script src="node_modules/knockout/build/output/knockout-latest.js"></script>
+    <script src="node_modules/knockback/knockback.js"></script>
     <script src="InOutVideoEditor.js"></script>
     <script>
-    $(document).ready(function() {
+        $(document).ready(function() {
 
-        var video = "videos/big_buck_bunny_1080p_h264.mov";
-        var fps = 24;
-        var width = 960;
-        var height = 540;
+            var width = 960;
+            var height = 540;
 
-        window.editor = new InOutVideoEditor({ video: video, fps: fps });
+            $('#video').css({width: width, heigth: height});
+            $('#seek-bar').css({width: width});
 
-        editor.on('loaded', function() {
-            var video = this.getVideo();
-            $("#editor").append(video);
-            video.width = width;
-            video.height = height;
-            showInfo(this);
-            $("#seek-bar").attr({max: this.getTotalFrames()}).css({width: width});
+            var InOutVideoEditor = Backbone.Model.extend({
+                defaults: {
+                    src: "videos/big_buck_bunny_1080p_h264.mov",
+                    fps: 24,
+                    duration: 0,
+                    width: 0,
+                    height: 0,
+                    totalFrames: 0,
+                    currentFrame: 0,
+                    currentTime: 0,
+                    beginAt: 0,
+                    endAt: 0,
+                },
+
+                timeToFrame: function(time) {
+                    return Math.floor(time * this.get('fps'));
+                },
+
+                frameToTime: function(frame) {
+                    return frame / this.get('fps');
+                },
+            });
+
+            var EditorView = kb.ViewModel.extend({
+
+                constructor: function(model, video) {
+                    kb.ViewModel.prototype.constructor.apply(this, [model]);
+                    this.video = video;
+                    var self = this;
+
+                    $(this.video).bind('loadedmetadata', function() {
+                        self.width(this.videoWidth);
+                        self.height(this.videoHeight);
+                        self.duration(this.duration);
+                        self.totalFrames(self.model().timeToFrame(this.duration));
+                        self.endAt(self.totalFrames());
+                    });
+
+                    $(this.video).bind('timeupdate', function() {
+                        if ( ! self.video.paused ) {
+                            self.currentTime(self.video.currentTime);
+                        }
+                        self.currentFrame(self.model().timeToFrame(self.currentTime()));
+                    });
+                },
+
+                play: function() {
+                    this.video.play();
+                },
+
+                pause: function() {
+                    this.video.pause();
+                    this.currentTime(this.video.currentTime);
+                    this.currentFrame(this.model().timeToFrame(this.currentTime()));
+                },
+
+                offset: function(frames) {
+                    this.goToFrame(this.currentFrame() + frames);
+                },
+
+                setBegin: function() {
+                    this.beginAt(this.currentFrame());
+                },
+
+                setEnd: function() {
+                    this.endAt(this.currentFrame());
+                },
+
+                goToFrame: function(frame, event) {
+                    var frame = (event) ? event.target.value : frame;
+                    this.currentTime(this.model().frameToTime(frame))
+                    this.video.currentTime = this.currentTime();
+                },
+
+                goToBegin: function() {
+                    this.goToFrame(this.beginAt());
+                },
+
+                goToEnd: function() {
+                    this.goToFrame(this.endAt());
+                },
+
+            });
+
+            var view = new EditorView(new InOutVideoEditor(), $("#video")[0]);
+            ko.applyBindings(view, $("#content")[0]);
         });
-
-        var getInfo = function(editor) {
-            return {
-                "fps": editor.getFps(),
-                "width": editor.getVideoWidth(),
-                "height": editor.getVideoHeight(),
-                "duration": editor.getVideoDuration(),
-                "time": editor.getCurrentTime(),
-                "frames": editor.getTotalFrames(),
-                "frame": editor.getCurrentFrame(),
-                "begin": editor.getBeginAt(),
-                "end": editor.getEndAt(),
-            };
-        };
-
-        var showInfo = function(editor) {
-            var info = getInfo(editor);
-            var table = "";
-            for (k in info) {
-                table += "<tr><th>" + k + ":</th><td>" + info[k] + "</td></tr>";
-            }
-            $('#info').html("<table>" + table + "</table>");
-        };
-
-        editor.on('updated', function() {
-            $('#seek-bar').val(this.getCurrentFrame());
-            showInfo(this);
-        });
-
-        $('#seek-bar').change(function() {
-            editor.setCurrentFrame($(this).val());
-        });
-
-        $('#play').click(function() {
-            editor.getVideo().play();
-        });
-
-        $('#pause').click(function() {
-            editor.getVideo().pause();
-        });
-
-        $('#plus1').click(function() {
-            editor.moveFrames(1);
-        });
-
-        $('#minus1').click(function() {
-            editor.moveFrames(-1);
-        });
-
-        $('#plus10').click(function() {
-            editor.moveFrames(10);
-        });
-
-        $('#minus10').click(function() {
-            editor.moveFrames(-10);
-        });
-
-        $('#setBegin').click(function() {
-            editor.setBeginAt();
-            showInfo(editor);
-        });
-
-        $('#setEnd').click(function() {
-            editor.setEndAt();
-            showInfo(editor);
-        });
-
-        $('#goToBegin').click(function() {
-            editor.setCurrentFrame(editor.getBeginAt());
-        });
-
-        $('#goToEnd').click(function() {
-            editor.setCurrentFrame(editor.getEndAt());
-        });
-
-        editor.init();
-
-    });
     </script>
 </head>
 <body>
-    <div id="editor"></div>
-    <div id="info"></div>
-    <div id="controls">
-        <input type="range" id="seek-bar" value="0">
-        <div style="margin-top:5px">
-            <button id="play">play</button>
-            <button id="pause">pause</button>
-            <button id="plus1">+1 frame</button>
-            <button id="minus1">-1 frame</button>
-            <button id="plus10">+10 frames</button>
-            <button id="minus10">-10 frames</button>
-            <button id="setBegin">set begin</button>
-            <button id="setEnd">set end</button>
-            <button id="goToBegin">begin</button>
-            <button id="goToEnd">end</button>
+    <div id="content">
+        <div id="editor">
+            <video data-bind="attr: {src:src()}" id="video"></video>
+        </div>
+        <div id="info">
+            <table>
+                <tr><th>fps</th><td data-bind="text: fps"></td></tr>
+                <tr><th>width</th><td data-bind="text: width"></td></tr>
+                <tr><th>height</th><td data-bind="text: height"></td></tr>
+                <tr><th>duration</th><td data-bind="text: duration"></td></tr>
+                <tr><th>time</th><td data-bind="text: currentTime"></td></tr>
+                <tr><th>frames</th><td data-bind="text: totalFrames"></td></tr>
+                <tr><th>frame</th><td data-bind="text: currentFrame"></td></tr>
+                <tr><th>begin</th><td data-bind="text: beginAt"></td></tr>
+                <tr><th>end</th><td data-bind="text: endAt"></td></tr>
+            </table>
+        </div>
+        <div id="controls">
+            <input type="range" id="seek-bar" data-bind="attr: {max:totalFrames}, value: currentFrame, event: {change: goToFrame}"/>
+            <div style="margin-top:5px">
+                <button data-bind="click: play">play</button>
+                <button data-bind="click: pause">pause</button>
+                <button data-bind="click: function(){offset(1)}">+1 frame</button>
+                <button data-bind="click: function(){offset(-1)}">-1 frame</button>
+                <button data-bind="click: function(){offset(10)}">+10 frames</button>
+                <button data-bind="click: function(){offset(-10)}">-10 frames</button>
+                <button data-bind="click: setBegin">set begin</button>
+                <button data-bind="click: setEnd">set end</button>
+                <button data-bind="click: goToBegin">begin</button>
+                <button data-bind="click: goToEnd">end</button>
+            </div>
         </div>
     </div>
 </body>
