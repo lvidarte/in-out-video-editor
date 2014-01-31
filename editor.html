@@ -129,7 +129,7 @@
             </table>
         </div>
         <div id="controls">
-            <input type="range" id="seek-bar" data-bind="attr: {max:totalFrames}, value: currentFrame, event: {change: function(o,e){goToFrame(parseIng(e.target.value))}}"/>
+            <input type="range" id="seek-bar" data-bind="attr: {max:totalFrames}, value: currentFrame, event: {change: function(o,e){goToFrame(parseInt(e.target.value))}}"/>
             <div style="margin-top:5px">
                 <button data-bind="click: play" id="play">play</button>
                 <button data-bind="click: pause" id="pause">pause</button>

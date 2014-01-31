@@ -133,19 +133,15 @@ describe('Test In-Out Video Editor', function() {
             });
         });
 
-        it('Should go to frame 11000', function(done) {
-            var frame = driver.findElement(By.id('frame'));
-            frame.clear();
-            frame.sendKeys('11000').then(function() {
-                driver.findElement(By.id('goToFrame')).click().then(function() {
-                    setTimeout(function() {
-                        driver.findElement(By.id('currentFrame')).getText().then(function(value) {
-                            expect(value).equal('11000');
-                            done();
-                        });
-                    }, timeout);
-                });
-            });
+        it('Should go to frame 11000 on range input', function(done) {
+            driver.executeScript("$('#seek-bar').val(11000).trigger('change')").then(function() {
+                setTimeout(function() {
+                    driver.findElement(By.id('currentFrame')).getText().then(function(value) {
+                        expect(value).equal('11000');
+                        done();
+                    });
+                }, timeout);
+            })
         });
 
         it('Should set end', function(done) {
