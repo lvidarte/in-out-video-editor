@@ -16,7 +16,7 @@ var timeout = 500;
 describe('Test In-Out Video Editor', function() {
 
     before(function(done) {
-        driver.get('file:///' + __dirname + '/../editor.html', done);
+        driver.get('file:///' + __dirname + '/../editor.html');
         done();
     });
 
